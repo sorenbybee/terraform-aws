@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pokemon-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pokemon
+  template:
+    metadata:
+      labels:
+        app: pokemon
+    spec:
+      containers:
+      - name: pokemon
+        image: sorenbybee/pokemon:latest  # Replace with your DockerHub image
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: "mysql.default.svc.cluster.local"
+        - name: DB_USER
+          value: "soren"     # Replace with your MySQL username
+        - name: DB_PASS
+          value: "IT3300"     # Replace with your MySQL password
+        - name: DB_NAME
+          value: "pokemondb"        # Database name
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pokemon-service
+spec:
+  selector:
+    app: pokemon
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 31000  # NodePort exposes port 80 on a high port in the 30000-32767 range
+
